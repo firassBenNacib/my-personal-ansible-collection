@@ -11,7 +11,7 @@ A set of Ansible roles to install or remove software and services on Debian and 
 - [Sensitive Data](#sensitive-data)
 - [Roles](#roles)
 - [License](#license)
-- [Author](#author)
+- [Authors](#authors)
 
 ## Overview
 
