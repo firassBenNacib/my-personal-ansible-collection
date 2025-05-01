@@ -13,5 +13,4 @@ __pycache__/
 *.tar.gz
 *.bak
 *.old
-*.cfg
 *.ini
