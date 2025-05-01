@@ -1,0 +1,55 @@
+---
+- name: Install libaio and alien (Debian)
+  apt:
+    name:
+      - libaio1
+      - alien
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian" and sqlplus_state == "present"
+
+- name: Install libaio (RedHat)
+  yum:
+    name: libaio
+    state: present
+  when: ansible_os_family == "RedHat" and sqlplus_state == "present"
+
+- name: Download Oracle Instant Client RPMs
+  get_url:
+    url: "{{ item.url }}"
+    dest: "/tmp/{{ item.name }}"
+  loop: "{{ packages }}"
+  when: sqlplus_state == "present"
+
+- name: Install Oracle RPMs using alien (Debian)
+  command: "alien -i --scripts /tmp/{{ item.name }}"
+  loop: "{{ packages }}"
+  when: ansible_os_family == "Debian" and sqlplus_state == "present"
+
+- name: Install Oracle RPMs directly (RedHat)
+  yum:
+    name: "/tmp/{{ item.name }}"
+    state: present
+  loop: "{{ packages }}"
+  when: ansible_os_family == "RedHat" and sqlplus_state == "present"
+
+- name: Remove Oracle SQLPlus packages (RedHat)
+  yum:
+    name: "{{ item.name | regex_replace('\\.rpm$', '') }}"
+    state: absent
+  loop: "{{ packages }}"
+  when: ansible_os_family == "RedHat" and sqlplus_state == "absent"
+
+- name: Remove Oracle SQLPlus packages (Debian)
+  apt:
+    name: "{{ item.name | regex_replace('\\.rpm$', '') | regex_replace('oracle-instantclient' + client_version + '-', '') }}"
+    state: absent
+    purge: yes
+  loop: "{{ packages }}"
+  when: ansible_os_family == "Debian" and sqlplus_state == "absent"
+
+- name: Clean up downloaded RPMs
+  file:
+    path: "/tmp/{{ item.name }}"
+    state: absent
+  loop: "{{ packages }}"

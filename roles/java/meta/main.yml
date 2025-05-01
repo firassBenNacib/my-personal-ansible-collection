@@ -1,0 +1,26 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Installs and configures Java OpenJDK using system package manager or Adoptium for modern versions.
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - java
+    - openjdk
+    - adoptium
+    - devtools
+    - system
+
+dependencies: []

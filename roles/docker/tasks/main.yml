@@ -1,0 +1,103 @@
+---
+- name: Ensure NTP is installed (Debian)
+  package:
+    name: ntp
+    state: present
+  when: ansible_os_family == "Debian" and docker_package_state == "present"
+
+- name: Ensure NTP service is running (Debian)
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+  when: ansible_os_family == "Debian" and docker_package_state == "present"
+
+- name: Install Docker prerequisites (Debian)
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "Debian" and docker_package_state == "present"
+
+- name: Add Docker GPG key (Debian)
+  command: >
+    curl -fsSL https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg |
+    gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+  when: ansible_os_family == "Debian" and docker_package_state == "present"
+
+- name: Add Docker APT repository (Debian)
+  apt_repository:
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
+      https://download.docker.com/linux/{{ ansible_distribution | lower }}
+      {{ ansible_distribution_release | lower }} stable
+    filename: docker
+    state: present
+  when: ansible_os_family == "Debian" and docker_package_state == "present"
+
+- name: Manage Docker packages (Debian)
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: "{{ docker_package_state }}"
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker prerequisites (RedHat)
+  yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: latest
+  when: ansible_os_family == "RedHat" and docker_package_state == "present"
+
+- name: Add Docker repository (RedHat)
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: 0644
+  when: ansible_os_family == "RedHat" and docker_package_state == "present"
+
+- name: Manage Docker packages (RedHat)
+  yum:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: "{{ docker_package_state }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Manage Docker service
+  service:
+    name: docker
+    state: "{{ docker_service_state }}"
+    enabled: "{{ docker_service_enabled }}"
+  when: docker_package_state == "present"
+
+- name: Show Docker version
+  command: docker --version
+  register: docker_version
+  changed_when: false
+  when: docker_package_state == "present" and docker_version_check
+
+- name: Print Docker version
+  debug:
+    msg: "Docker installed: {{ docker_version.stdout }}"
+  when: docker_package_state == "present" and docker_version_check
+
+- name: Show Docker installation status
+  debug:
+    msg: "Docker has been {{ 'installed' if docker_package_state == 'present' else 'removed' }}."

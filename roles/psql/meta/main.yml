@@ -1,0 +1,27 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Installs and configures PostgreSQL client tools (psql) on Debian and RedHat-based systems.
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+        - 9
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - postgresql
+    - psql
+    - database
+    - client
+    - tools
+
+dependencies: []

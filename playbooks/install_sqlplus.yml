@@ -1,0 +1,6 @@
+---
+- name: Install Oracle SQL*Plus on Workers
+  hosts: app_servers
+  become: true
+  roles:
+    - sqlplus

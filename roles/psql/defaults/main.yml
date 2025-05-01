@@ -1,0 +1,4 @@
+---
+psql_version: "14"
+psql_state: "present"   
+psql_symlink_path: "/usr/local/bin/psql"

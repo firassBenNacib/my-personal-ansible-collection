@@ -1,0 +1,6 @@
+---
+- name: Install PostgreSQL on all workers
+  hosts: app_servers
+  become: true
+  roles:
+    - psql

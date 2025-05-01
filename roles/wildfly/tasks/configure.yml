@@ -1,0 +1,72 @@
+---
+- name: Replace WildFly standalone.xml configuration file
+  copy:
+    src: "{{ decompressed_dir }}/wildfly 26/standalone.xml"
+    dest: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/standalone/configuration/standalone.xml"
+    owner: "{{ wildfly_user }}"
+    group: "{{ wildfly_user }}"
+    mode: '0644'
+    remote_src: yes
+  notify: Restart WildFly service
+  tags: configure
+
+- name: Set management IP in standalone.xml
+  lineinfile:
+    path: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/standalone/configuration/standalone.xml"
+    regexp: '<inet-address value="\${jboss.bind.address.management:.*}"/>'
+    line: '<inet-address value="${jboss.bind.address.management:{{ management_ip }}}"/>'
+  notify: Restart WildFly service
+  tags: configure
+
+- name: Create management user in ManagementRealm
+  shell: >
+    {{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/bin/add-user.sh
+    -u "{{ wildfly_mgmt_user }}"
+    -p "{{ wildfly_mgmt_password }}"
+    -g "admin"
+    -s
+    -r ManagementRealm
+  args:
+    creates: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/standalone/configuration/mgmt-users.properties"
+  no_log: true
+  notify: Restart WildFly service
+  tags: configure
+
+
+- name: Ensure Oracle JDBC module directory exists
+  file:
+    path: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/modules/system/layers/base/com/oracle/jdbc/main"
+    state: directory
+    owner: "{{ wildfly_user }}"
+    group: "{{ wildfly_user }}"
+    mode: '0755'
+  tags: configure
+
+- name: Copy Oracle JDBC driver and module.xml
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: "{{ decompressed_dir }}/database drivers/com/oracle/jdbc/main/ojdbc10.jar", dest: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/modules/system/layers/base/com/oracle/jdbc/main/ojdbc10.jar" }
+    - { src: "{{ decompressed_dir }}/database drivers/com/oracle/jdbc/main/module.xml", dest: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/modules/system/layers/base/com/oracle/jdbc/main/module.xml" }
+  tags: configure
+
+- name: Ensure PostgreSQL JDBC module directory exists
+  file:
+    path: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/modules/system/layers/base/org/postgresql/main"
+    state: directory
+    owner: "{{ wildfly_user }}"
+    group: "{{ wildfly_user }}"
+    mode: '0755'
+  tags: configure
+
+- name: Copy PostgreSQL JDBC driver and module.xml
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: "{{ decompressed_dir }}/database drivers/org/postgresql/main/postgresql-42.7.2.jar", dest: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/modules/system/layers/base/org/postgresql/main/postgresql-42.7.2.jar" }
+    - { src: "{{ decompressed_dir }}/database drivers/org/postgresql/main/module.xml", dest: "{{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/modules/system/layers/base/org/postgresql/main/module.xml" }
+  tags: configure

@@ -1,0 +1,11 @@
+---
+ansible_python_interpreter: "/usr/bin/python3"
+
+postgres_image_name: "postgresql-16:latest"
+postgres_container_name: "postgresql-16"
+
+POSTGRES_DB: "tasksdb"
+# POSTGRES_USER: "your user"
+# POSTGRES_PASSWORD: "your password"
+postgres_port: "5432:5432"
+postgres_container_state: "present"

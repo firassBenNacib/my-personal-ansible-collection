@@ -1,0 +1,27 @@
+---
+- name: Install required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - wget
+    - unzip
+    - chrony
+
+- name: Enable chrony service
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: started
+
+- name: Create Open Liberty group and user
+  block:
+    - group:
+        name: "{{ openliberty_group }}"
+        state: present
+    - user:
+        name: "{{ openliberty_user }}"
+        group: "{{ openliberty_group }}"
+        system: yes
+        create_home: yes

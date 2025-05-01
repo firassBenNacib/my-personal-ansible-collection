@@ -1,0 +1,121 @@
+---
+- name: Install Python3 and pip (Debian)
+  apt:
+    name:
+      - python3
+      - python3-pip
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Upgrade pip (Debian)
+  pip:
+    name: pip
+    state: latest
+    executable: pip3
+  when: ansible_os_family == "Debian"
+
+- name: Install Python Docker SDK and requests (Debian)
+  pip:
+    name: "{{ item }}"
+    state: present
+    executable: pip3
+  loop:
+    - docker
+    - requests
+  when: ansible_os_family == "Debian"
+
+- name: Ensure EPEL repo is available for CentOS 7
+  yum:
+    name: epel-release
+    state: present
+  when: ansible_distribution == "CentOS" and (ansible_distribution_major_version | int <= 7)
+
+- name: Install Python3 and pip (RedHat)
+  yum:
+    name:
+      - python3
+      - python3-pip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Upgrade pip (RedHat)
+  pip:
+    name: pip
+    state: latest
+    executable: pip3
+  when: ansible_os_family == "RedHat"
+
+- name: Install Python Docker SDK and requests (RedHat)
+  pip:
+    name: "{{ item }}"
+    state: present
+    executable: pip3
+  loop:
+    - docker
+    - requests
+  when: ansible_os_family == "RedHat"
+
+- name: Remove existing PostgreSQL image if present
+  community.docker.docker_image:
+    name: "{{ postgres_image_name }}"
+    state: absent
+  ignore_errors: true
+  when: postgres_container_state == "absent"
+
+- name: Remove PostgreSQL container if requested
+  community.docker.docker_container:
+    name: "{{ postgres_container_name }}"
+    state: absent
+    force_kill: true
+    remove_volumes: true
+  when: postgres_container_state == "absent"
+
+- name: Create remote PostgreSQL Docker build directory
+  file:
+    path: /tmp/postgres_build
+    state: directory
+    mode: '0755'
+  when: postgres_container_state == "present"
+
+- name: Copy Dockerfile to remote host
+  copy:
+    src: "{{ role_path }}/files/Dockerfile"
+    dest: "/tmp/postgres_build/Dockerfile"
+    mode: '0644'
+  when: postgres_container_state == "present"
+
+- name: Build PostgreSQL Docker image
+  community.docker.docker_image:
+    build:
+      path: "/tmp/postgres_build"
+      args:
+        POSTGRES_DB: "{{ POSTGRES_DB }}"
+        POSTGRES_USER: "{{ POSTGRES_USER }}"
+        POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+    name: "{{ postgres_image_name }}"
+    source: build
+    state: present
+  when: postgres_container_state == "present"
+
+- name: Run PostgreSQL container
+  community.docker.docker_container:
+    name: "{{ postgres_container_name }}"
+    image: "{{ postgres_image_name }}"
+    state: started
+    restart_policy: always
+    exposed_ports:
+      - "5432"
+    ports:
+      - "{{ postgres_port }}"
+    env:
+      POSTGRES_DB: "{{ POSTGRES_DB }}"
+      POSTGRES_USER: "{{ POSTGRES_USER }}"
+      POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+  when: postgres_container_state == "present"
+
+- name: Clean up remote PostgreSQL build directory
+  file:
+    path: /tmp/postgres_build
+    state: absent
+  when: postgres_container_state == "present"

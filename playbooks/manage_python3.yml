@@ -1,0 +1,6 @@
+---
+- name: Install or Remove Python 3
+  hosts: all
+  become: true
+  roles:
+    - role: python3

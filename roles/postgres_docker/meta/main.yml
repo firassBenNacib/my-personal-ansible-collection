@@ -1,0 +1,28 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Build and run PostgreSQL 16 in Docker using a custom Dockerfile and environment variables.
+
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+        - 9
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - postgresql
+    - docker
+    - database
+    - container
+    - devops
+
+dependencies: []

@@ -1,0 +1,15 @@
+[Unit]
+Description=WildFly Application Server
+After=network.target
+
+[Service]
+User={{ wildfly_user }}
+Group={{ wildfly_user }}
+Environment="JAVA_OPTS=-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management={{ wildfly_management_bind_address }}"
+ExecStart={{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/bin/standalone.sh
+ExecStop={{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/bin/jboss-cli.sh --connect command=:shutdown
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

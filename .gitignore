@@ -1,0 +1,15 @@
+*.retry
+*.log
+*.vault.yml
+*.secret.yml
+vars/secrets.yml
+vars/main.yml
+*.pem
+*.key
+*.zip
+*.ear
+/tmp/
+__pycache__/
+*.tar.gz
+*.bak
+*.old

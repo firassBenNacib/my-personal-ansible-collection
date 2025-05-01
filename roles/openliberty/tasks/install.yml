@@ -1,0 +1,33 @@
+---
+- name: Download Open Liberty
+  get_url:
+    url: "{{ openliberty_url }}"
+    dest: "/tmp/openliberty-{{ openliberty_version }}.zip"
+    mode: '0644'
+
+- name: Create install dir
+  file:
+    path: "{{ openliberty_install_dir }}"
+    state: directory
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+
+- name: Extract Open Liberty
+  unarchive:
+    src: "/tmp/openliberty-{{ openliberty_version }}.zip"
+    dest: "{{ openliberty_install_dir }}"
+    remote_src: true
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+
+- name: Create systemd service file
+  template:
+    src: openliberty.service.j2
+    dest: "{{ openliberty_service_file }}"
+  notify: Reload Systemd Daemon
+
+- name: Enable and start Open Liberty
+  systemd:
+    name: openliberty
+    enabled: yes
+    state: started

@@ -1,0 +1,46 @@
+---
+- name: Ensure EAR destination directory exists
+  file:
+    path: "{{ destination_path }}"
+    state: directory
+    owner: "{{ wildfly_user }}"
+    group: "{{ wildfly_user }}"
+    mode: '0755'
+  tags: deploy
+
+- name: Check if EAR file exists
+  stat:
+    path: "{{ destination_path }}/{{ ear_file_name }}"
+  register: ear_file_stat
+  tags: deploy
+
+- name: Restart WildFly before deploying EAR
+  systemd:
+    name: wildfly
+    state: restarted
+    enabled: yes
+  tags: deploy
+
+- name: Flush handlers to apply service reloads if needed
+  meta: flush_handlers
+  tags: deploy
+
+- name: Wait for WildFly Management port to be ready
+  wait_for:
+    host: "{{ management_ip }}"
+    port: 9990
+    delay: 10
+    timeout: 60
+    state: started
+  tags: deploy
+
+- name: Deploy EAR file to WildFly using JBoss CLI
+  command: >
+    {{ wildfly_install_dir }}/wildfly-{{ wildfly_version }}/bin/jboss-cli.sh
+    --connect
+    --controller={{ management_ip }}:9990
+    --user={{ wildfly_mgmt_user }}
+    --password={{ wildfly_mgmt_password }}
+    --commands="deploy {{ destination_path }}/{{ ear_file_name }} --force"
+  when: ear_file_stat.stat.exists
+  tags: deploy

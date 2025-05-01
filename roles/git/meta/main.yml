@@ -1,0 +1,24 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Ansible role to install and manage Git on Debian and RedHat systems.
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - git
+    - versioncontrol
+    - developer
+
+dependencies: []

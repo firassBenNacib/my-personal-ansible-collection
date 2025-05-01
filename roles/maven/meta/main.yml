@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Installs and configures Apache Maven from official binaries on Debian and RedHat-based systems.
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - maven
+    - buildtools
+    - java
+    - devops
+
+dependencies: []

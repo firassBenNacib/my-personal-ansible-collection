@@ -1,0 +1,9 @@
+---
+- name: Set EAR path in enterpriseApplication
+  community.general.xml:
+    path: "{{ openliberty_install_dir }}/wlp/usr/servers/{{ openliberty_server_name }}/server.xml"
+    xpath: /server/enterpriseApplication[@id='EarProject']
+    attribute: location
+    value: "{{ ear_file_location }}"
+    state: present
+  notify: restart openliberty

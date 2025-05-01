@@ -1,0 +1,69 @@
+---
+- name: Update apt cache (Debian)
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Manage PostgreSQL client on Debian
+  apt:
+    name: "postgresql-client-{{ psql_version }}"
+    state: "{{ psql_state }}"
+  when: ansible_os_family == "Debian"
+
+- name: Download PostgreSQL YUM repo RPM (RedHat)
+  get_url:
+    url: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+    dest: "/tmp/pgdg-redhat-repo-latest.noarch.rpm"
+  when: ansible_os_family == "RedHat"
+
+- name: Install pgdg repo package (RedHat)
+  yum:
+    name: "/tmp/pgdg-redhat-repo-latest.noarch.rpm"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Disable default PostgreSQL module (RedHat 8+)
+  command: dnf -qy module disable postgresql
+  when:
+    - ansible_distribution_major_version is version('8', '>=')
+    - ansible_os_family == "RedHat"
+  ignore_errors: true
+
+- name: Manage PostgreSQL {{ psql_version }} client tools (RedHat)
+  yum:
+    name: "postgresql{{ psql_version }}"
+    state: "{{ psql_state }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Remove system default PostgreSQL client if present
+  yum:
+    name: postgresql
+    state: absent
+  when:
+    - ansible_os_family == "RedHat"
+    - psql_state == "absent"
+
+- name: Ensure /usr/local/bin exists (if installing)
+  file:
+    path: /usr/local/bin
+    state: directory
+    mode: '0755'
+  when:
+    - ansible_os_family == "RedHat"
+    - psql_state == "present"
+
+- name: Add symlink to psql for global access (RedHat)
+  file:
+    src: "/usr/pgsql-{{ psql_version }}/bin/psql"
+    dest: "{{ psql_symlink_path }}"
+    state: link
+    force: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - psql_state == "present"
+
+- name: Remove symlink if psql is absent
+  file:
+    path: "{{ psql_symlink_path }}"
+    state: absent
+  when: psql_state == "absent"

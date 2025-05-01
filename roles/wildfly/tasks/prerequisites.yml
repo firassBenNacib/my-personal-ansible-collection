@@ -1,0 +1,15 @@
+- name: Install required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - unzip
+    - chrony
+
+- name: Enable chrony service
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: started
+

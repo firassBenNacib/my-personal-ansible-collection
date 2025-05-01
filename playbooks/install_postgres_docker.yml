@@ -1,0 +1,8 @@
+---
+- name: Deploy PostgreSQL in Docker
+  hosts: app_servers
+  become: true
+  vars_files:
+    - dockerhub_credentials.yml
+  roles:
+    - postgres_docker

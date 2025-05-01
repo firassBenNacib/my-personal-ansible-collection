@@ -1,0 +1,22 @@
+---
+wildfly_version: "26.1.3.Final"
+wildfly_user: "wildfly"
+wildfly_install_dir: "/opt/wildfly"
+wildfly_service_file: "/etc/systemd/system/wildfly.service"
+wildfly_download_url: "https://github.com/wildfly/wildfly/releases/download/{{ wildfly_version }}/wildfly-{{ wildfly_version }}.zip"
+
+# wildfly_mgmt_user: "your user"
+# wildfly_mgmt_password: "your password"
+management_ip: "{{ ansible_eth1.ipv4.address }}"
+wildfly_management_bind_address: "{{ ansible_eth1.ipv4.address }}"
+
+destination_path: "/opt/EAR_application"
+ear_file_name: "infinities-x-latest.ear"
+
+configurations_path1: "{{ destination_path }}/decompressed_package/configurations métier/FeatureToggle"
+configuration_file_v1: "features-config-v1.xml"
+configuration_file_v2: "features-config-v2.xml"
+
+configurations_path2: "{{ destination_path }}/decompressed_package/configurations métier/AgeModifier"
+configuration_file_v3: "age-config-v1.xml"
+configuration_file_v4: "age-config-v2.xml"

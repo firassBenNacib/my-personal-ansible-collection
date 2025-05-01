@@ -1,0 +1,18 @@
+---
+- name: Replace server.xml
+  copy:
+    src: "{{ custom_server_xml }}"
+    dest: "{{ openliberty_install_dir }}/wlp/usr/servers/{{ openliberty_server_name }}/server.xml"
+    remote_src: yes
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: '0644'
+  notify: restart openliberty
+
+- name: Update host in httpEndpoint
+  replace:
+    path: "{{ openliberty_install_dir }}/wlp/usr/servers/defaultServer/server.xml"
+    regexp: '(<httpEndpoint.*?)( host="[^"]*")?(.*?>)'
+    replace: '\1 host="{{ managementIP }}"\3'
+    backup: yes
+  notify: restart openliberty

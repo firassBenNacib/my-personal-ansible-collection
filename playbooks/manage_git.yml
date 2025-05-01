@@ -1,0 +1,7 @@
+---
+- name: Manage Git installation/removal
+  hosts: app_servers
+  become: true
+
+  roles:
+    - git

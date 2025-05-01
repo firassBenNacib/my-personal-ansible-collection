@@ -1,0 +1,16 @@
+---
+ansible_python_interpreter: "/usr/bin/python3"
+
+dockerfile_path: "{{ role_path }}/files"
+
+oracle_image_name: "docker-oracle:10g"
+container_name: "oracle-10g"
+
+ORACLE_DB: "xe"
+# ORACLE_USER: "your user"
+# ORACLE_PASSWORD: "your password"
+
+
+oracle_port: "1521:1521"
+ssh_port: "2222:22"
+http_port: "8087:8087"

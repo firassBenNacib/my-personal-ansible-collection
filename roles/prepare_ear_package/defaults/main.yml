@@ -1,0 +1,10 @@
+---
+# nexus_repository_url: "http://your-nexus-url/repository/maven-releases/path/to/artifact/"
+# ear_nexus_api_url: "http://your-nexus-url/service/rest/v1/search/assets/download?...&repository=...&groupId=...&artifactId=...&extension=ear"
+
+# nexus_user: "your-user"
+# nexus_password: "your-password"
+
+destination_path: "/opt/EAR_application"
+decompressed_dir: "{{ destination_path }}/decompressed_package"
+zip_file_name: "EarProjects-1.0.0.zip"

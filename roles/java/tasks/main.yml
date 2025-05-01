@@ -1,0 +1,60 @@
+---
+- name: Install OpenJDK on Debian
+  apt:
+    name: "openjdk-{{ java_version }}-jdk"
+    state: "{{ java_state }}"
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  tags: java
+
+- name: Install OpenJDK on RedHat (version 8 or 11)
+  yum:
+    name: "java-{{ java_version }}-openjdk-devel"
+    state: "{{ java_state }}"
+  when: ansible_os_family == "RedHat" and java_version in ["8", "11"]
+  tags: java
+
+- name: Install OpenJDK 17+ on RedHat using Adoptium
+  block:
+    - name: Add Adoptium YUM repo
+      yum_repository:
+        name: adoptium
+        description: Adoptium OpenJDK RPMs
+        baseurl: "https://packages.adoptium.net/artifactory/rpm/centos/7/{{ ansible_architecture }}"
+        gpgkey: https://packages.adoptium.net/artifactory/api/gpg/key/public
+        gpgcheck: yes
+        enabled: yes
+
+    - name: Install Adoptium OpenJDK
+      yum:
+        name: "temurin-{{ java_version }}-jdk"
+        state: "{{ java_state }}"
+  when: ansible_os_family == "RedHat" and java_version|int >= 17
+  tags: java
+
+- name: Set JAVA_HOME on Debian
+  blockinfile:
+    path: /etc/environment
+    block: |
+      JAVA_HOME={{ java_home_ubuntu }}
+      JRE_HOME={{ java_home_ubuntu }}/jre
+  when: ansible_os_family == "Debian" and java_state == "present"
+  tags: java
+
+- name: Set JAVA_HOME on RedHat (version 8 or 11)
+  blockinfile:
+    path: /etc/profile.d/java.sh
+    block: |
+      export JAVA_HOME={{ java_home_redhat }}
+      export JRE_HOME={{ java_home_redhat }}/jre
+  when: ansible_os_family == "RedHat" and java_version in ["8", "11"] and java_state == "present"
+  tags: java
+
+- name: Set JAVA_HOME on RedHat (Adoptium for 17+)
+  blockinfile:
+    path: /etc/profile.d/java.sh
+    block: |
+      export JAVA_HOME=/usr/lib/jvm/temurin-{{ java_version }}-jdk
+      export JRE_HOME=/usr/lib/jvm/temurin-{{ java_version }}-jdk/jre
+  when: ansible_os_family == "RedHat" and java_version|int >= 17 and java_state == "present"
+  tags: java

@@ -1,0 +1,7 @@
+---
+- name: Manage Docker installation/removal
+  hosts: app_servers
+  become: true
+
+  roles:
+    - docker

@@ -1,0 +1,6 @@
+---
+java_version: "17"
+java_state: "present"
+
+java_home_ubuntu: "/usr/lib/jvm/java-{{ java_version }}-openjdk-amd64"
+java_home_redhat: "/usr/lib/jvm/java-{{ java_version }}-openjdk"

@@ -1,0 +1,33 @@
+---
+- name: Manage Git package on Ubuntu
+  apt:
+    name: "{{ git_package_name }}"
+    state: "{{ git_package_state }}"
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+  tags: git
+
+- name: Manage Git package on CentOS
+  yum:
+    name: "{{ git_package_name }}"
+    state: "{{ git_package_state }}"
+  when: ansible_facts['os_family'] == "RedHat"
+  tags: git
+
+- name: Check Git version (only if installing and enabled)
+  command: git --version
+  register: git_version
+  changed_when: false
+  when: git_package_state == "present" and git_version_check
+  tags: git
+
+- name: Show Git version installed
+  debug:
+    msg: "Git installed: {{ git_version.stdout }}"
+  when: git_package_state == "present" and git_version_check
+  tags: git
+
+- name: Show Git installation status
+  debug:
+    msg: "Git has been {{ 'installed' if git_package_state == 'present' else 'removed' }}."
+  tags: git

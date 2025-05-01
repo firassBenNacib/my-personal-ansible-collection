@@ -1,0 +1,97 @@
+---
+- name: Install Python3 and pip (RedHat)
+  yum:
+    name:
+      - python3
+      - python3-pip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Upgrade pip (RedHat)
+  pip:
+    name: pip
+    state: latest
+    executable: pip3
+  when: ansible_os_family == "RedHat"
+
+- name: Install Docker SDK and requests for Python (RedHat)
+  pip:
+    name: "{{ item }}"
+    state: present
+    executable: pip3
+  loop:
+    - docker
+    - requests
+  when: ansible_os_family == "RedHat"
+
+- name: Install Python3 and pip (Debian)
+  apt:
+    name:
+      - python3
+      - python3-pip
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Upgrade pip (Debian)
+  pip:
+    name: pip
+    state: latest
+    executable: pip3
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker SDK and requests for Python (Debian)
+  pip:
+    name: "{{ item }}"
+    state: present
+    executable: pip3
+  loop:
+    - docker
+    - requests
+  when: ansible_os_family == "Debian"
+
+- name: Create remote Oracle Docker build directory
+  file:
+    path: /tmp/oracle_build
+    state: directory
+    mode: '0755'
+
+- name: Copy Dockerfile and .deb files to remote host
+  copy:
+    src: "{{ item }}"
+    dest: "/tmp/oracle_build/"
+    mode: '0644'
+  with_fileglob:
+    - "{{ role_path }}/files/*"
+
+- name: Build Oracle Docker image
+  community.docker.docker_image:
+    build:
+      path: "/tmp/oracle_build"
+    name: "{{ oracle_image_name }}"
+    source: build
+    state: present
+
+- name: Run Oracle container
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ oracle_image_name }}"
+    state: started
+    restart_policy: always
+    exposed_ports:
+      - "1521"
+      - "22"
+      - "8087"
+    ports:
+      - "{{ oracle_port }}"
+      - "{{ ssh_port }}"
+      - "{{ http_port }}"
+    env:
+      ORACLE_DB: "{{ ORACLE_DB }}"
+      ORACLE_USER: "{{ ORACLE_USER }}"
+      ORACLE_PASSWORD: "{{ ORACLE_PASSWORD }}"
+
+- name: Clean up remote build directory
+  file:
+    path: /tmp/oracle_build
+    state: absent

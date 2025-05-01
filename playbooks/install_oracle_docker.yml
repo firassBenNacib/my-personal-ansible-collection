@@ -1,0 +1,8 @@
+---
+- name: Deploy Oracle DB in Docker
+  hosts: app_servers
+  become: true
+  vars_files:
+    - dockerhub_credentials.yml
+  roles:
+    - oracle_docker

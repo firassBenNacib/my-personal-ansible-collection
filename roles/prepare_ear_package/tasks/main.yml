@@ -1,0 +1,84 @@
+---
+- name: Ensure destination directory exists
+  file:
+    path: "{{ destination_path }}"
+    state: directory
+    mode: '0755'
+  tags: prepare_ear
+
+- name: Remove existing ZIP if present
+  file:
+    path: "{{ destination_path }}/{{ zip_file_name }}"
+    state: absent
+  tags: prepare_ear
+
+- name: Install unzip package if needed (Ubuntu)
+  apt:
+    name: unzip
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  tags: prepare_ear
+
+- name: Install unzip package if needed (CentOS)
+  yum:
+    name: unzip
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags: prepare_ear
+
+- name: Download EAR ZIP from Nexus
+  get_url:
+    url: "{{ nexus_repository_url }}{{ zip_file_name }}"
+    dest: "{{ destination_path }}/{{ zip_file_name }}"
+    mode: '0644'
+  tags: prepare_ear
+
+- name: Remove old decompressed dir if present
+  file:
+    path: "{{ decompressed_dir }}"
+    state: absent
+  tags: prepare_ear
+
+- name: Recreate decompressed dir
+  file:
+    path: "{{ decompressed_dir }}"
+    state: directory
+  tags: prepare_ear
+
+- name: Unarchive the ZIP
+  unarchive:
+    src: "{{ destination_path }}/{{ zip_file_name }}"
+    dest: "{{ decompressed_dir }}"
+    remote_src: yes
+  tags: prepare_ear
+
+- name: Download the latest EAR from Nexus REST API
+  get_url:
+    url: "{{ ear_nexus_api_url }}"
+    headers:
+      Accept: application/json
+    dest: "{{ destination_path }}/infinities-x-latest.ear"
+    url_username: "{{ nexus_user }}"
+    url_password: "{{ nexus_password }}"
+    force_basic_auth: true
+    validate_certs: false
+  register: download_result
+  tags: prepare_ear
+
+- name: Verify EAR file exists
+  stat:
+    path: "{{ destination_path }}/infinities-x-latest.ear"
+  register: ear_file_stat
+  tags: prepare_ear
+
+- name: Fail if EAR file missing
+  fail:
+    msg: "EAR download failed."
+  when: not ear_file_stat.stat.exists
+  tags: prepare_ear
+
+- name: Success message
+  debug:
+    msg: "EAR package prepared and ready for deployment."
+  tags: prepare_ear

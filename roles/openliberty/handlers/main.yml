@@ -1,0 +1,10 @@
+---
+- name: Reload Systemd Daemon
+  systemd:
+    daemon_reload: yes
+
+- name: restart openliberty
+  systemd:
+    name: openliberty
+    state: restarted
+    daemon_reload: yes

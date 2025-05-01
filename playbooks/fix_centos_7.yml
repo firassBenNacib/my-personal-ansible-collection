@@ -1,0 +1,6 @@
+---
+- name: Fix YUM baseurl on CentOS 7
+  hosts: app_servers
+  become: true
+  roles:
+    - fix_centos_yum

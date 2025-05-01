@@ -1,0 +1,13 @@
+---
+openliberty_version: "24.0.0.2"
+openliberty_url: "https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/release/{{ openliberty_version }}/openliberty-{{ openliberty_version }}.zip"
+openliberty_install_dir: "/opt/openliberty"
+# openliberty_user: "your user"
+# openliberty_group: "your group"
+openliberty_service_file: "/etc/systemd/system/openliberty.service"
+openliberty_server_name: "defaultServer"
+custom_server_xml: "/opt/EAR_application/decompressed_package/wlp 8/server.xml"
+jdbc_oracle_dir: "/opt/EAR_application/decompressed_package/database drivers/com/oracle/jdbc/main"
+jdbc_postgresql_dir: "/opt/EAR_application/decompressed_package/database drivers/org/postgresql/main"
+ear_file_location: "/opt/EAR_application/infinities-x-latest.ear"
+managementIP: "{{ ansible_eth1.ipv4.address }}"

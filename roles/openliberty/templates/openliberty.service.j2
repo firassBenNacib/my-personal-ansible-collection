@@ -1,0 +1,13 @@
+[Unit]
+Description=Open Liberty Server
+After=network.target
+
+[Service]
+ExecStart={{ openliberty_install_dir }}/wlp/bin/server run {{ openliberty_server_name }}
+ExecStop={{ openliberty_install_dir }}/wlp/bin/server stop {{ openliberty_server_name }}
+User={{ openliberty_user }}
+Group={{ openliberty_group }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

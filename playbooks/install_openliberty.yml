@@ -1,0 +1,8 @@
+---
+- name: Install and Deploy Java EE App on OpenLiberty
+  hosts: app_servers
+  become: true
+
+  roles:
+    - prepare_ear_package
+    - openliberty

@@ -1,0 +1,24 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Install, configure, and deploy an applications on WildFly using Ansible.
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - wildfly
+    - java
+    - deployment
+    - jboss
+    - applicationserver
+    - ear
+
+dependencies: []

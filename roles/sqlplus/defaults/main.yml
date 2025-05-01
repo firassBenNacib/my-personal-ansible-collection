@@ -1,0 +1,10 @@
+---
+client_version: "19.6"
+sqlplus_state: "present"  
+download_url: "http://yum.oracle.com/repo/OracleLinux/OL7/oracle/instantclient/x86_64/getPackage"
+
+packages:
+  - name: "oracle-instantclient{{ client_version }}-basic-{{ client_version }}.0.0.0-1.x86_64.rpm"
+    url: "{{ download_url }}/oracle-instantclient{{ client_version }}-basic-{{ client_version }}.0.0.0-1.x86_64.rpm"
+  - name: "oracle-instantclient{{ client_version }}-sqlplus-{{ client_version }}.0.0.0-1.x86_64.rpm"
+    url: "{{ download_url }}/oracle-instantclient{{ client_version }}-sqlplus-{{ client_version }}.0.0.0-1.x86_64.rpm"

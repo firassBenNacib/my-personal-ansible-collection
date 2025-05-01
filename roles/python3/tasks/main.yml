@@ -1,0 +1,30 @@
+---
+- name: Install Python 3 on Debian
+  apt:
+    name: python3
+    state: "{{ python3_package_state }}"
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install pip3 on Debian
+  apt:
+    name: python3-pip
+    state: "{{ python3_package_state }}"
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Python 3 on RedHat
+  yum:
+    name: python3
+    state: "{{ python3_package_state }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Install pip3 on RedHat
+  yum:
+    name: python3-pip
+    state: "{{ python3_package_state }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Show Python installation status
+  debug:
+    msg: "Python 3 has been {{ 'installed' if python3_package_state == 'present' else 'removed' }}."

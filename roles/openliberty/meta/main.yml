@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Firas Ben Nacib
+  description: Install and configure Open Liberty application server.
+
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - openliberty
+    - websphere
+    - javaee
+    - deployment
+    - ear
+    - jdbc
+
+dependencies: []

@@ -1,0 +1,8 @@
+---
+- name: Install Java and Maven
+  hosts: all
+  become: true
+
+  roles:
+    - java
+    - maven

@@ -1,0 +1,46 @@
+---
+- name: Ensure Maven install directory exists
+  file:
+    path: "{{ m2_home_path }}"
+    state: directory
+    mode: '0755'
+  when: maven_state == "present"
+  tags: maven
+
+- name: Download Maven archive
+  get_url:
+    url: "{{ maven_download_url }}"
+    dest: /tmp/apache-maven-{{ maven_version }}-bin.tar.gz
+  when: maven_state == "present"
+  tags: maven
+
+- name: Extract Maven archive
+  unarchive:
+    src: /tmp/apache-maven-{{ maven_version }}-bin.tar.gz
+    dest: "{{ m2_home_path }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+  when: maven_state == "present"
+  tags: maven
+
+- name: Show Maven installation status
+  debug:
+    msg: "Maven {{ maven_version }} has been {{ 'installed' if maven_state == 'present' else 'removed' }}."
+  tags: maven
+
+- name: Set M2_HOME in environment (Ubuntu & CentOS)
+  blockinfile:
+    path: /etc/profile.d/maven.sh
+    block: |
+      export M2_HOME={{ m2_home_path }}
+      export PATH=$M2_HOME/bin:$PATH
+    create: yes
+  when: maven_state == "present"
+  tags: maven
+
+- name: Remove Maven installation if requested
+  file:
+    path: "{{ m2_home_path }}"
+    state: absent
+  when: maven_state == "absent"
+  tags: maven
